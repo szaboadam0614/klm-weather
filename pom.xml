@@ -14,6 +14,7 @@
     </parent>
 
     <properties>
+        <!--        based on README.md requirement-->
         <java.version>17</java.version>
         <mapstruct.version>1.6.3</mapstruct.version>
     </properties>

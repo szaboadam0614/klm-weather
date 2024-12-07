@@ -27,49 +27,27 @@ public class WeatherService {
         return weatherMapper.toWeatherResource(weatherRepository.save(weatherMapper.toEntity(weatherResource)));
     }
 
-    public List<WeatherResource> findAll(final Optional<Date> date, final List<String> cities, final Optional<String> sort) {
-        if (sort.isPresent()) {
-            final var sorting = getSorting(sort.get());
-            if (date.isPresent() && !CollectionUtils.isEmpty(cities)) {
-                return weatherMapper.toWeatherResources(weatherRepository.findByDateAndCities(date.get(), lower(cities), sorting));
-            }
+    public List<WeatherResource> findAllByParameters(final Optional<Date> date, final List<String> cities, final Optional<String> sort) {
+        final var sorting = sort.map(this::getSorting)
+                .orElse(Sort.by(Sort.Direction.ASC, "id"));
 
-            if (!CollectionUtils.isEmpty(cities)) {
-                return weatherMapper.toWeatherResources(weatherRepository.findByCitiesIn(lower(cities), sorting));
-            }
-
-            if (date.isPresent()) {
-                return weatherMapper.toWeatherResources(weatherRepository.findByDate(date.get(), sorting));
-            }
-            return weatherMapper.toWeatherResources(weatherRepository.findAll(sorting));
-        }
-        return findAllWithDefaultSorting(date, cities);
-    }
-
-    private List<WeatherResource> findAllWithDefaultSorting(final Optional<Date> date, final List<String> cities) {
         if (date.isPresent() && !CollectionUtils.isEmpty(cities)) {
-            return weatherMapper.toWeatherResources(weatherRepository.findByDateAndCities(date.get(), lower(cities)));
+            return weatherMapper.toWeatherResources(weatherRepository.findByDateAndCities(date.get(), lower(cities), sorting));
         }
 
         if (!CollectionUtils.isEmpty(cities)) {
-            return weatherMapper.toWeatherResources(weatherRepository.findByCitiesIn(lower(cities)));
+            return weatherMapper.toWeatherResources(weatherRepository.findByCitiesIn(lower(cities), sorting));
         }
 
         if (date.isPresent()) {
-            return weatherMapper.toWeatherResources(weatherRepository.findByDate(date.get()));
+            return weatherMapper.toWeatherResources(weatherRepository.findByDate(date.get(), sorting));
         }
-        return findAllWithoutFiltering();
+        return weatherMapper.toWeatherResources(weatherRepository.findAll(sorting));
     }
 
-
-    private List<WeatherResource> findAllWithoutFiltering() {
-        return weatherMapper.toWeatherResources(weatherRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
-    }
-
-    private List<String> lower(final List<String> cities) {
-        return cities.stream()
-                .map(String::toLowerCase)
-                .toList();
+    public WeatherResource findById(final Integer id) {
+        return weatherMapper.toWeatherResource(weatherRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     private Sort getSorting(final String sorting) {
@@ -81,9 +59,10 @@ public class WeatherService {
         };
     }
 
-    public WeatherResource findById(final Integer id) {
-        return weatherMapper.toWeatherResource(weatherRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+    private List<String> lower(final List<String> cities) {
+        return cities.stream()
+                .map(String::toLowerCase)
+                .toList();
     }
 
 }
