@@ -24,8 +24,9 @@ public class WeatherApiRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WeatherResource>> getAll(@RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Optional<Date> date) {
-        return ResponseEntity.ok(weatherService.findAll(date));
+    public ResponseEntity<List<WeatherResource>> getAll(@RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final Optional<Date> date,
+                                                        @RequestParam(value = "city", required = false) final List<String> cities) {
+        return ResponseEntity.ok(weatherService.findAll(date, cities));
     }
 
 }

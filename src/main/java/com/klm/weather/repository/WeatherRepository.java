@@ -19,4 +19,19 @@ public interface WeatherRepository extends JpaRepository<Weather, Integer> {
             """)
     List<Weather> findByDate(@Param("date") Date date);
 
+    @Query("""
+            SELECT w FROM Weather w WHERE
+            lower(w.city) IN :cities
+            ORDER BY w.id
+            """)
+    List<Weather> findByCitiesIn(@Param("cities") List<String> cities);
+
+    @Query("""
+            SELECT w FROM Weather w WHERE
+            CAST(w.date AS date) = :date
+            AND lower(w.city) IN :cities
+            ORDER BY w.id
+            """)
+    List<Weather> findByDateAndCities(@Param("date") Date date, @Param("cities") List<String> cities);
+
 }
