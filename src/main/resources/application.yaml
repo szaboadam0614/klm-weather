@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
+    username: admin #TODO move to env file
+    password: admin #TODO move to env file
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        hbm2ddl.auto: create
+server:
+  address: 0.0.0.0
+  port: 8000
