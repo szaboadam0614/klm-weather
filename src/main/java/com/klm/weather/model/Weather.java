@@ -1,7 +1,6 @@
 package com.klm.weather.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +9,8 @@ import java.util.List;
 public class Weather {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "weather_gen")
+    @SequenceGenerator(name = "weather_gen", sequenceName = "weather_seq", allocationSize = 1)
     private Integer id;
 
     private Date date;
