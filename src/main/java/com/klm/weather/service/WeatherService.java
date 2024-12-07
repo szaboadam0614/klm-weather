@@ -36,7 +36,7 @@ public class WeatherService {
         }
 
         if (!CollectionUtils.isEmpty(cities)) {
-            return weatherMapper.toWeatherResources(weatherRepository.findByCitiesIn(lower(cities), sorting));
+            return weatherMapper.toWeatherResources(weatherRepository.findByCityInIgnoreCase(cities, sorting));
         }
 
         if (date.isPresent()) {

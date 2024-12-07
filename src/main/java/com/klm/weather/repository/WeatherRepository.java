@@ -19,11 +19,7 @@ public interface WeatherRepository extends JpaRepository<Weather, Integer> {
             """)
     List<Weather> findByDate(@Param("date") Date date, Sort sort);
 
-    @Query("""
-            SELECT w FROM Weather w WHERE
-            lower(w.city) IN :cities
-            """)
-    List<Weather> findByCitiesIn(@Param("cities") List<String> cities, Sort sort);
+    List<Weather> findByCityInIgnoreCase(List<String> cities, Sort sort);
 
     @Query("""
             SELECT w FROM Weather w WHERE
@@ -31,6 +27,5 @@ public interface WeatherRepository extends JpaRepository<Weather, Integer> {
             AND lower(w.city) IN :cities
             """)
     List<Weather> findByDateAndCities(@Param("date") Date date, @Param("cities") List<String> cities, Sort sort);
-
 
 }
