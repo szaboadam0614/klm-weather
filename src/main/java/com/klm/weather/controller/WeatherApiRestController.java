@@ -30,4 +30,9 @@ public class WeatherApiRestController {
         return ResponseEntity.ok(weatherService.findAll(date, cities, sort));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<WeatherResource> getById(@PathVariable("id") final Integer id) {
+        return ResponseEntity.ok(weatherService.findById(id));
+    }
+
 }

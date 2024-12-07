@@ -5,9 +5,11 @@ import com.klm.weather.controller.WeatherResource;
 import com.klm.weather.repository.WeatherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 import java.util.List;
@@ -77,6 +79,11 @@ public class WeatherService {
             case "-date" -> Sort.by(Sort.Direction.DESC, "date").and(idSorting);
             default -> throw new IllegalStateException("Sorting value is not supported: '%s'".formatted(sorting));
         };
+    }
+
+    public WeatherResource findById(final Integer id) {
+        return weatherMapper.toWeatherResource(weatherRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
 }
