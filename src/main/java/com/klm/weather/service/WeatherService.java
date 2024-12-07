@@ -25,7 +25,26 @@ public class WeatherService {
         return weatherMapper.toWeatherResource(weatherRepository.save(weatherMapper.toEntity(weatherResource)));
     }
 
-    public List<WeatherResource> findAll(final Optional<Date> date, final List<String> cities) {
+    public List<WeatherResource> findAll(final Optional<Date> date, final List<String> cities, final Optional<String> sort) {
+        if (sort.isPresent()) {
+            final var sorting = getSorting(sort.get());
+            if (date.isPresent() && !CollectionUtils.isEmpty(cities)) {
+                return weatherMapper.toWeatherResources(weatherRepository.findByDateAndCities(date.get(), lower(cities), sorting));
+            }
+
+            if (!CollectionUtils.isEmpty(cities)) {
+                return weatherMapper.toWeatherResources(weatherRepository.findByCitiesIn(lower(cities), sorting));
+            }
+
+            if (date.isPresent()) {
+                return weatherMapper.toWeatherResources(weatherRepository.findByDate(date.get(), sorting));
+            }
+            return weatherMapper.toWeatherResources(weatherRepository.findAll(sorting));
+        }
+        return findAllWithDefaultSorting(date, cities);
+    }
+
+    private List<WeatherResource> findAllWithDefaultSorting(final Optional<Date> date, final List<String> cities) {
         if (date.isPresent() && !CollectionUtils.isEmpty(cities)) {
             return weatherMapper.toWeatherResources(weatherRepository.findByDateAndCities(date.get(), lower(cities)));
         }
@@ -40,14 +59,24 @@ public class WeatherService {
         return findAllWithoutFiltering();
     }
 
+
+    private List<WeatherResource> findAllWithoutFiltering() {
+        return weatherMapper.toWeatherResources(weatherRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
+    }
+
     private List<String> lower(final List<String> cities) {
         return cities.stream()
                 .map(String::toLowerCase)
                 .toList();
     }
 
-    private List<WeatherResource> findAllWithoutFiltering() {
-        return weatherMapper.toWeatherResources(weatherRepository.findAll(Sort.by(Sort.Direction.ASC, "id")));
+    private Sort getSorting(final String sorting) {
+        final var idSorting = Sort.by(Sort.Direction.ASC, "id");
+        return switch (sorting) {
+            case "date" -> Sort.by(Sort.Direction.ASC, "date").and(idSorting);
+            case "-date" -> Sort.by(Sort.Direction.DESC, "date").and(idSorting);
+            default -> throw new IllegalStateException("Sorting value is not supported: '%s'".formatted(sorting));
+        };
     }
 
 }
